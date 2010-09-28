@@ -62,6 +62,7 @@ sub _pluggable_process {
         $self->_handle_error($self, '_default', $self_ret);
     }
 
+    $self_ret = PLUGIN_EAT_NONE unless defined $self_ret;
     return $return if $self_ret == PLUGIN_EAT_PLUGIN;
     $return = PLUGIN_EAT_ALL if $self_ret == PLUGIN_EAT_CLIENT;
     return PLUGIN_EAT_ALL if $self_ret == PLUGIN_EAT_ALL;
