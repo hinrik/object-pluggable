@@ -11,7 +11,6 @@ perl_version '5.006';
 build_requires 'Test::More' => 0.47;
 requires 'constant' => 1.17;
 requires 'Task::Weaken' => 0;
-requires 'POE' => 1.004;
 auto_provides;
 githubmeta;
 WriteAll();
