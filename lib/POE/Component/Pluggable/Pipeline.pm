@@ -297,6 +297,7 @@ sub _register {
 
     my $return;
     my $sub = "$self->{OBJECT}{_pluggable_reg_prefix}register";
+    local $@;
     eval { $return = $plug->$sub($self->{OBJECT}, @register_args) };
 
     if ($@) {
@@ -326,6 +327,7 @@ sub _unregister {
 
     my $return;
     my $sub = "$self->{OBJECT}{_pluggable_reg_prefix}unregister";
+    local $@;
     eval { $return = $plug->$sub($self->{OBJECT}, @unregister_args) };
 
     if ($@) {

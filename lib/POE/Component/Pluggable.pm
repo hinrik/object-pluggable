@@ -51,6 +51,7 @@ sub _pluggable_process {
     my $return = PLUGIN_EAT_NONE;
     my $self_ret = $return;
 
+    local $@;
     if ($self->can($sub)) {
         eval { $self_ret = $self->$sub( $self, @args ) };
         $self->_handle_error($self, $sub, $self_ret);
@@ -126,6 +127,7 @@ sub _handle_error {
 # accesses the plugin pipeline
 sub pipeline {
     my ($self) = @_;
+    local $@;
     eval { $self->{_PLUGINS}->isa('POE::Component::Pluggble::Pipeline') };
     $self->{_PLUGINS} = POE::Component::Pluggable::Pipeline->new($self) if $@;
     return $self->{_PLUGINS};
