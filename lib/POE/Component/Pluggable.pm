@@ -551,7 +551,7 @@ multiple plugins of the same kind active in one POE::Component::Pluggable
 object.
 
 This method goes through the pipeline's C<push()> method, which will call
-C<$plugin->plugin_register($pluggable)>.
+C<< $plugin->plugin_register($pluggable) >>.
 
 Returns the number of plugins now in the pipeline if plugin was initialized,
 C<undef>/an empty list if not.
@@ -563,7 +563,7 @@ Accepts one argument:
  The alias for the plugin or the plugin object itself
 
 This method goes through the pipeline's C<remove()> method, which will call
-C<$plugin->plugin_unregister($pluggable)>.
+C<< $plugin->plugin_unregister($pluggable) >>.
 
 Returns the plugin object if the plugin was removed, C<undef>/an empty list
 if not.
