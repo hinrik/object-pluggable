@@ -2,7 +2,6 @@ package Object::Pluggable::Constants;
 
 use strict;
 use warnings;
-our $VERSION = '1.26';
 
 require Exporter;
 use base qw(Exporter);

@@ -6,8 +6,6 @@ use Carp;
 use Object::Pluggable::Pipeline;
 use Object::Pluggable::Constants qw(:ALL);
 
-our $VERSION='1.26';
-
 sub _pluggable_init {
     my ($self, %opts) = @_;
   

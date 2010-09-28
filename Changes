@@ -8,6 +8,7 @@ Object::Pluggable
     - Remove the POE dependency
     - Fixed a warning when a subclass plugin method returns undef
     - Change the name from POE::Component::Pluggable to Object::Pluggable
+    - Migrate distribution to Dist::Zilla
 
 1.26  Fri Jun 25 18:35:15 BST 2010
     - Document the 'debug' parameter
