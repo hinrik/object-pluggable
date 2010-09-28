@@ -55,7 +55,7 @@ use Test::More tests => 9;
   sub _send_event {
     my $self = shift;
     my ($event, @args) = @_;
-    return 1 if $self->_pluggable_process( 'SERVER', $event, \( @args ) ) == PLUGIN_EAT_ALL;
+    return 1 if $self->_pluggable_process( 'SERVER', $event, \@args ) == PLUGIN_EAT_ALL;
     $poe_kernel->post( $self->{sender_id}, $event, @args );
     return 1;
   }

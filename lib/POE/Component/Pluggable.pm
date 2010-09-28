@@ -36,7 +36,7 @@ sub _pluggable_event {
 }
 
 sub _pluggable_process {
-    my ($self, $type, $event, @args) = @_;
+    my ($self, $type, $event, $args) = @_;
 
     if (!defined $type || !defined $event) {
         carp 'Please supply an event type and name!';
@@ -50,20 +50,26 @@ sub _pluggable_process {
     my $sub = join '_', $self->{_pluggable_types}{$type}, $event;
     my $return = PLUGIN_EAT_NONE;
     my $self_ret = $return;
+    my @extra_args;
 
     local $@;
     if ($self->can($sub)) {
-        eval { $self_ret = $self->$sub( $self, @args ) };
+        eval { $self_ret = $self->$sub($self, \(@$args), \@extra_args ) };
         $self->_handle_error($self, $sub, $self_ret);
     }
     elsif ( $self->can('_default') ) {
-        eval { $self_ret = $self->_default( $self, $sub, @args ) };
+        eval { $self_ret = $self->_default($self, $sub, \(@$args), \@extra_args) };
         $self->_handle_error($self, '_default', $self_ret);
     }
 
     return $return if $self_ret == PLUGIN_EAT_PLUGIN;
     $return = PLUGIN_EAT_ALL if $self_ret == PLUGIN_EAT_CLIENT;
     return PLUGIN_EAT_ALL if $self_ret == PLUGIN_EAT_ALL;
+
+    if (@extra_args) {
+        push @$args, @extra_args;
+        @extra_args = ();
+    }
 
     for my $plugin (@{ $pipeline->{PIPELINE} }) {
         if ($self eq $plugin
@@ -76,11 +82,11 @@ sub _pluggable_process {
 
         my $alias = ($pipeline->get($plugin))[1];
         if ($plugin->can($sub)) {
-            eval { $ret = $plugin->$sub($self,@args) };
+            eval { $ret = $plugin->$sub($self, \(@$args), \@extra_args) };
             $self->_handle_error($plugin, $sub, $ret, $alias);
         }
         elsif ( $plugin->can('_default') ) {
-            eval { $ret = $plugin->_default($self,$sub,@args) };
+            eval { $ret = $plugin->_default($self, $sub, \(@$args), \@extra_args) };
             $self->_handle_error($plugin, '_default', $ret, $alias);
         }
 
@@ -88,6 +94,11 @@ sub _pluggable_process {
         return $return if $ret == PLUGIN_EAT_PLUGIN;
         $return = PLUGIN_EAT_ALL if $ret == PLUGIN_EAT_CLIENT;
         return PLUGIN_EAT_ALL if $ret == PLUGIN_EAT_ALL;
+
+        if (@extra_args) {
+            push @$args, @extra_args;
+            @extra_args = ();
+        }
     }
 
     return $return;
@@ -365,7 +376,7 @@ POE::Component::Pluggable - A base class for creating plugin-enabled POE Compone
      sub __send_event {
          my ($kernel, $self, $event, @args) = @_[KERNEL, OBJECT, ARG0..$#_];
 
-         return 1 if $self->_pluggable_process(EXAMPLE => $event, \(@args)) == PLUGIN_EAT_ALL;
+         return 1 if $self->_pluggable_process(EXAMPLE => $event, \@args) == PLUGIN_EAT_ALL;
          $kernel->post($_, $event, @args) for keys %{ $self->{sessions} };
      }
 
@@ -505,15 +516,19 @@ This gives pluggable a chance to discard events if requested to by a plugin.
 The first argument is a type, as specified to C<_pluggable_init()>.
 
  sub _dispatch {
+     my ($self, $event, $type, @args) = @_;
+
      # stuff
-    
-     return 1 if $self->_pluggable_process($type, $event, \(@args)) == PLUGIN_EAT_ALL;
+
+     my $type = ...
+
+     return 1 if $self->_pluggable_process($type, $event, \@args)) == PLUGIN_EAT_ALL;
 
      # dispatch event to interested sessions.
  }
 
-This example demonstrates event arguments being passed as scalar refs to the
-plugin system. This enables plugins to mangle the arguments if necessary. 
+A reference to the argument array is passed. This allows the plugin system
+to mangle the arguments or even add new ones.
 
 =head2 C<_pluggable_event>
 
