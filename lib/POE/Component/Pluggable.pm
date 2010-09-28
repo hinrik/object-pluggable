@@ -133,26 +133,26 @@ sub pipeline {
 
 # Adds a new plugin object
 sub plugin_add {
-    my ($self, $name, $plugin) = @_;
+    my ($self, $name, $plugin, @args) = @_;
 
     if (!defined $name || !defined $plugin) {
         carp 'Please supply a name and the plugin object to be added!';
         return;
     }
 
-    return $self->pipeline->push($name, $plugin);
+    return $self->pipeline->push($name, $plugin, @args);
 }
 
 # Removes a plugin object
 sub plugin_del {
-    my ($self, $name) = @_;
+    my ($self, $name, @args) = @_;
 
     if (!defined $name) {
         carp 'Please supply a name/object for the plugin to be removed!';
         return;
     }
 
-    my $return = scalar $self->pipeline->remove($name);
+    my $return = scalar $self->pipeline->remove($name, @args);
     return $return;
 }
 
@@ -545,13 +545,14 @@ Accepts two arguments:
 
  The alias for the plugin
  The actual plugin object
+ Any number of extra arguments
 
 The alias is there for the user to refer to it, as it is possible to have
 multiple plugins of the same kind active in one POE::Component::Pluggable
 object.
 
 This method goes through the pipeline's C<push()> method, which will call
-C<< $plugin->plugin_register($pluggable) >>.
+C<< $plugin->plugin_register($pluggable, @args) >>.
 
 Returns the number of plugins now in the pipeline if plugin was initialized,
 C<undef>/an empty list if not.
@@ -561,9 +562,10 @@ C<undef>/an empty list if not.
 Accepts one argument:
 
  The alias for the plugin or the plugin object itself
+ Any number of extra arguments
 
 This method goes through the pipeline's C<remove()> method, which will call
-C<< $plugin->plugin_unregister($pluggable) >>.
+C<< $plugin->plugin_unregister($pluggable, @args) >>.
 
 Returns the plugin object if the plugin was removed, C<undef>/an empty list
 if not.

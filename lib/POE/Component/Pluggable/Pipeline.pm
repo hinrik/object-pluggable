@@ -23,14 +23,14 @@ sub new {
 }
 
 sub push {
-    my ($self, $alias, $plug) = @_;
+    my ($self, $alias, $plug, @register_args) = @_;
 
     if ($self->{PLUGS}{$alias}) {
         $@ = "Plugin named '$alias' already exists ($self->{PLUGS}{$alias})";
         return;
     }
 
-    my $return = $self->_register($alias, $plug);
+    my $return = $self->_register($alias, $plug, @register_args);
     return if !$return;
 
     push @{ $self->{PIPELINE} }, $plug;
@@ -38,26 +38,26 @@ sub push {
 }
 
 sub pop {
-    my ($self) = @_;
+    my ($self, @unregister_args) = @_;
 
     return if !@{ $self->{PIPELINE} };
 
     my $plug = pop @{ $self->{PIPELINE} };
     my $alias = $self->{PLUGS}{$plug};
-    $self->_unregister($alias, $plug);
+    $self->_unregister($alias, $plug, @unregister_args);
 
     return wantarray ? ($plug, $alias) : $plug;
 }
 
 sub unshift {
-    my ($self, $alias, $plug) = @_;
+    my ($self, $alias, $plug, @register_args) = @_;
 
     if ($self->{PLUGS}{$alias}) {
         $@ = "Plugin named '$alias' already exists ($self->{PLUGS}{$alias}";
         return;
     }
 
-    my $return = $self->_register($alias, $plug);
+    my $return = $self->_register($alias, $plug, @register_args);
     return if !$return;
 
     unshift @{ $self->{PIPELINE} }, $plug;
@@ -65,19 +65,19 @@ sub unshift {
 }
 
 sub shift {
-    my ($self) = @_;
+    my ($self, @unregister_args) = @_;
 
     return if !@{ $self->{PIPELINE} };
 
     my $plug = shift @{ $self->{PIPELINE} };
     my $alias = $self->{PLUGS}{$plug};
-    $self->_unregister($alias, $plug);
+    $self->_unregister($alias, $plug, @unregister_args);
 
     return wantarray ? ($plug, $alias) : $plug;
 }
 
 sub replace {
-    my ($self, $old, $new_a, $new_p) = @_;
+    my ($self, $old, $new_a, $new_p, $unregister_args, $register_args) = @_;
     
     my ($old_a, $old_p) = ref $old
         ? ($self->{PLUGS}{$old}, $old)
@@ -89,14 +89,28 @@ sub replace {
         return;
     }
 
-    $self->_unregister($old_a, $old_p);
+    $self->_unregister(
+        $old_a,
+        $old_p,
+        (ref $unregister_args eq 'ARRAY'
+            ? @$unregister_args
+            : ()
+        )
+    );
 
     if ($self->{PLUGS}{$new_a}) {
         $@ = "Plugin named '$new_a' already exists ($self->{PLUGS}{$new_a}";
         return;
     }
 
-    my $return = $self->_register($new_a, $new_p);
+    my $return = $self->_register(
+        $new_a,
+        $new_p,
+        (ref $register_args eq 'ARRAY'
+            ? @$register_args
+            : ()
+        )
+    );
     return if !$return;
 
     for my $plugin (@{ $self->{PIPELINE} }) {
@@ -110,7 +124,7 @@ sub replace {
 }
 
 sub remove {
-    my ($self, $old) = @_;
+    my ($self, $old, @unregister_args) = @_;
     my ($old_a, $old_p) = ref $old
         ? ($self->{PLUGS}{$old}, $old)
         : ($old, $self->{PLUGS}{$old})
@@ -130,7 +144,7 @@ sub remove {
         $i++;
     }
 
-    $self->_unregister($old_a, $old_p);
+    $self->_unregister($old_a, $old_p, @unregister_args);
 
     return wantarray ? ($old_p, $old_a) : $old_p;
 }
@@ -175,7 +189,7 @@ sub get_index {
 }
 
 sub insert_before {
-    my ($self, $old, $new_a, $new_p) = @_;
+    my ($self, $old, $new_a, $new_p, @register_args) = @_;
     
     my ($old_a, $old_p) = ref $old
         ? ($self->{PLUGS}{$old}, $old)
@@ -192,7 +206,7 @@ sub insert_before {
         return;
     }
 
-    my $return = $self->_register($new_a, $new_p);
+    my $return = $self->_register($new_a, $new_p, @register_args);
     return if !$return;
 
     my $i = 0;
@@ -208,7 +222,7 @@ sub insert_before {
 }
 
 sub insert_after {
-    my ($self, $old, $new_a, $new_p) = @_;
+    my ($self, $old, $new_a, $new_p, @register_args) = @_;
     my ($old_a, $old_p) = ref $old
         ? ($self->{PLUGS}{$old}, $old)
         : ($old, $self->{PLUGS}{$old})
@@ -224,7 +238,7 @@ sub insert_after {
         return;
     }
 
-    my $return = $self->_register($new_a, $new_p);
+    my $return = $self->_register($new_a, $new_p, @register_args);
     return if !$return;
 
     my $i = 0;
@@ -278,12 +292,12 @@ sub bump_down {
 }
 
 sub _register {
-    my ($self, $alias, $plug) = @_;
+    my ($self, $alias, $plug, @register_args) = @_;
     return if !defined $self->{OBJECT};
 
     my $return;
     my $sub = "$self->{OBJECT}{_pluggable_reg_prefix}register";
-    eval { $return = $plug->$sub($self->{OBJECT}) };
+    eval { $return = $plug->$sub($self->{OBJECT}, @register_args) };
 
     if ($@) {
         chomp $@;
@@ -307,12 +321,12 @@ sub _register {
 }
 
 sub _unregister {
-    my ($self, $alias, $plug) = @_;
+    my ($self, $alias, $plug, @unregister_args) = @_;
     return if !defined $self->{OBJECT};
 
     my $return;
     my $sub = "$self->{OBJECT}{_pluggable_reg_prefix}unregister";
-    eval { $return = $plug->$sub($self->{OBJECT}) };
+    eval { $return = $plug->$sub($self->{OBJECT}, @unregister_args) };
 
     if ($@) {
         chomp $@;
@@ -428,79 +442,89 @@ Takes one argument, the POE::Component::Pluggable object to attach to.
 
 =head2 C<push>
 
-Takes two arguments, an alias for a plugin and the plugin object itself.
-If a plugin with that alias already exists, C<$@> will be set and C<undef>
-will be returned. Otherwise, it adds the plugin to the end of the pipeline
-and registers it. This will yield a C<plugin_add> event. If successful, it
-returns the size of the pipeline.
+Takes at least two arguments, an alias for a plugin and the plugin object
+itself. Any extra arguments will be passed to the register method of the
+plugin object. If a plugin with that alias already exists, C<$@> will be set
+and C<undef> will be returned. Otherwise, it adds the plugin to the end of
+the pipeline and registers it. This will yield a C<plugin_add> event. If
+successful, it returns the size of the pipeline.
 
- my $new_size = $pipe->push($name, $plug);
+ my $new_size = $pipe->push($name, $plug, @register_args);
 
 =head2 C<unshift>
 
-Takes two arguments, an alias for a plugin and the plugin object itself.
-If a plugin with that alias already exists, C<$@> will be set and C<undef>
-will be returned. Otherwise, it adds the plugin to the beginning of the
-pipeline and registers it. This will yield a C<plugin_add> event. If
+Takes at least two arguments, an alias for a plugin and the plugin object
+itself. Any extra arguments will be passed to the register method of the
+plugin object. If a plugin with that alias already exists, C<$@> will be set
+and C<undef> will be returned. Otherwise, it adds the plugin to the beginning
+of the pipeline and registers it. This will yield a C<plugin_add> event. If
 successful, it returns the size of the pipeline.
 
- my $new_size = $pipe->push($name, $plug);
+ my $new_size = $pipe->push($name, $plug, @register_args);
 
 =head2 C<shift>
 
-Takes no arguments. The first plugin in the pipeline is removed. This will
-yield a C<plugin_del> event. In list context, it returns the plugin and its
-alias; in scalar context, it returns only the plugin. If there were no
-elements, an empty list or C<undef> will be returned.
+Takes any number of arguments. The first plugin in the pipeline is removed.
+Any arguments will be passed to the unregister method of the plugin object.
+This will yield a C<plugin_del> event. In list context, it returns the plugin
+and its alias; in scalar context, it returns only the plugin. If there were
+no elements, an empty list or C<undef> will be returned.
 
- my ($plug, $name) = $pipe->shift;
- my $plug = $pipe->shift;
+ my ($plug, $name) = $pipe->shift(@unregister_args);
+ my $plug = $pipe->shift(@unregister_args);
 
 =head2 C<pop>
 
-Takes no arguments. The last plugin in the pipeline is removed. This will
-yield an C<plugin_del> event. In list context, it returns the plugin and its
-alias; in scalar context, it returns only the plugin. If there were no
-elements, an empty list or C<undef> will be returned.
+Takes any number of arguments. The last plugin in the pipeline is removed.
+Any arguments will be passed to the unregister method of the plugin object.
+This will yield an C<plugin_del> event. In list context, it returns the
+plugin and its alias; in scalar context, it returns only the plugin. If
+there were no elements, an empty list or C<undef> will be returned.
 
- my ($plug, $name) = $pipe->pop;
- my $plug = $pipe->pop;
+ my ($plug, $name) = $pipe->pop(@unregister_args);
+ my $plug = $pipe->pop(@unregister_args);
 
 =head2 C<replace>
 
-Take three arguments, the old plugin or its alias, an alias for the new
-plugin and the new plugin object itself. If the old plugin doesn't exist,
-or if there is already a plugin with the new alias (besides the old plugin),
-$@ will be set and C<undef> will be returned. Otherwise, it removes the old
-plugin (yielding an C<plugin_del> event) and replaces it with the new
-plugin. This will yield an C<plugin_add> event. If successful, it returns 1.
+Takes at least three arguments, the old plugin or its alias, an alias for the
+new plugin and the new plugin object itself. You can optionally pass two
+array references of arguments which will be delivered to the unregister method
+of the old plugin and the register method of the new plugin, respectively.
+If you only want to pass the latter, you can put C<undef> in place of the
+former. If the old plugin doesn't exist, or if there is already a plugin with
+the new alias (besides the old plugin), C<$@> will be set and C<undef> will be
+returned. Otherwise, it removes the old plugin (yielding an C<plugin_del>
+event) and replaces it with the new plugin. This will yield an C<plugin_add>
+event. If successful, it returns 1.
 
- my $success = $pipe->replace($name, $new_name, $new_plug);
- my $success = $pipe->replace($plug, $new_name, $new_plug);
+ my $success = $pipe->replace($name, $new_name, $new_plug, \@unregister_args, \@register_args);
+ my $success = $pipe->replace($plug, $new_name, $new_plug, \@unregister_args, \@register_args);
 
 =head2 C<insert_before>
 
-Takes three arguments, the plugin that is relative to the operation,
-an alias for the new plugin and the new plugin object itself. If the first
-plugin doesn't exist, or if there is already a plugin with the new alias,
-C<$@> will be set and C<undef> will be returned. Otherwise, the new plugin is
-placed just prior to the other plugin in the pipeline. If successful,
-it returns 1.
+Takes at least three arguments, the plugin that is relative to the operation,
+an alias for the new plugin and the new plugin object itself. Any extra
+arguments will be passed to the register method of the new plugin object. If
+the first plugin doesn't exist, or if there is already a plugin with the new
+alias, C<$@> will be set and C<undef> will be returned. Otherwise, the new
+plugin is placed just prior to the other plugin in the pipeline. If
+successful, it returns 1.
 
- my $success = $pipe->insert_before($name, $new_name, $new_plug);
- my $success = $pipe->insert_before($plug, $new_name, $new_plug);
+ my $success = $pipe->insert_before($name, $new_name, $new_plug, @register_args);
+ my $success = $pipe->insert_before($plug, $new_name, $new_plug, @register_args);
 
 =head2 C<insert_after>
 
-Takes three arguments, the plugin that is relative to the operation,
-an alias for the new plugin and the new plugin object itself. If the
-first plugin doesn't exist, or if there is already a plugin with the
-new alias, C<$@> will be set and C<undef> will be returned. Otherwise,
-the new plugin is placed just after to the other plugin in the pipeline.
-If successful, it returns 1.
+Takes at least three arguments, the plugin that is relative to the operation,
+an alias for the new plugin and the new plugin object itself. any extra
+arguments will be passed to the register method of the new plugin object. If
+the first plugin doesn't exist, or if there is already a plugin with the new
+alias, C<$@> will be set and C<undef> will be returned. Otherwise, the new
+plugin is placed just after to the other plugin in the pipeline. If
+successful, it returns 1.
 
- my $success = $pipe->insert_after($name, $new_name, $new_plug);
- my $success = $pipe->insert_after($plug, $new_name, $new_plug);
+ my $success = $pipe->insert_after($name, $new_name, $new_plug, @register_args);
+ my $success = $pipe->insert_after($plug, $new_name, $new_plug, @register_args);
 
 =head2 C<bump_up>
 
@@ -535,16 +559,17 @@ index of the plugin in the pipeline is returned.
 
 =head2 C<remove>
 
-Takes one argument, a plugin or its alias. If the plugin doesn't exist,
-C<$@> will be set and C<undef> will be returned. Otherwise, the plugin is
-removed from the pipeline. This will yield an C<plugin_del> event. In list
-context,it returns the plugin and its alias; in scalar context, it returns
+Takes at least one argument, a plugin or its alias. Any arguments will be
+passed to the unregister method of the plugin object. If the plugin doesn't
+exist, C<$@> will be set and C<undef> will be returned. Otherwise, the plugin
+is removed from the pipeline. This will yield an C<plugin_del> event. In list
+context, it returns the plugin and its alias; in scalar context, it returns
 only the plugin.
 
- my ($plug, $name) = $pipe->remove($the_name);
- my ($plug, $name) = $pipe->remove($the_plug);
- my $plug = $pipe->remove($the_name);
- my $plug = $pipe->remove($the_plug);
+ my ($plug, $name) = $pipe->remove($the_name, @unregister_args);
+ my ($plug, $name) = $pipe->remove($the_plug, @unregister_args);
+ my $plug = $pipe->remove($the_name, @unregister_args);
+ my $plug = $pipe->remove($the_plug, @unregister_args);
 
 =head2 C<get>
 

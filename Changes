@@ -1,6 +1,9 @@
 POE::Component::Pluggable
 =========================
 
+1.28
+    - Allow arguments to be passed to plugins' register/unregister methods
+
 1.26  Fri Jun 25 18:35:15 BST 2010
     - Document the 'debug' parameter
     - Croak if the user does not supply the 'types' parameter
