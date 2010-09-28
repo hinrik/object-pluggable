@@ -1,4 +1,4 @@
-POE::Component::Pluggable
+Object::Pluggable
 =========================
 
 1.28
@@ -7,6 +7,7 @@ POE::Component::Pluggable
     - Let subclasses and plugins add new event arguments in their handlers
     - Remove the POE dependency
     - Fixed a warning when a subclass plugin method returns undef
+    - Change the name from POE::Component::Pluggable to Object::Pluggable
 
 1.26  Fri Jun 25 18:35:15 BST 2010
     - Document the 'debug' parameter

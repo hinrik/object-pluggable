@@ -1,6 +1,6 @@
 Makefile
 Makefile.old
-POE-Component-Pluggable-*
+Object-Pluggable-*
 blib
 inc
 pm_to_blib

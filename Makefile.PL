@@ -1,10 +1,10 @@
 use strict;
 use inc::Module::Install;
-name 'POE-Component-Pluggable';
+name 'Object-Pluggable';
 author 'Chris Williams <chris@bingosnet.co.uk>';
-version_from 'lib/POE/Component/Pluggable.pm';
-abstract_from 'lib/POE/Component/Pluggable.pm';
-readme_from 'lib/POE/Component/Pluggable.pm';
+version_from 'lib/Object/Pluggable.pm';
+abstract_from 'lib/Object/Pluggable.pm';
+readme_from 'lib/Object/Pluggable.pm';
 license 'perl';
 auto_license holder => 'Chris Williams';
 perl_version '5.006';

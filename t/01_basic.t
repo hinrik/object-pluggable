@@ -6,9 +6,9 @@ use Test::More tests => 7;
     package TestSubClass;
     use strict;
     use warnings;
-    use base qw(POE::Component::Pluggable);
+    use base qw(Object::Pluggable);
     use Test::More;
-    use POE::Component::Pluggable::Constants qw(:ALL);
+    use Object::Pluggable::Constants qw(:ALL);
 
     sub spawn {
         my $package = shift;
@@ -59,7 +59,7 @@ use Test::More tests => 7;
     use strict;
     use warnings;
     use Test::More;
-    use POE::Component::Pluggable::Constants qw(:ALL);
+    use Object::Pluggable::Constants qw(:ALL);
 
     sub new {
         my $package = shift;
@@ -95,7 +95,7 @@ use strict;
 use warnings;
 
 my $pluggable = TestSubClass->spawn();
-isa_ok($pluggable, 'POE::Component::Pluggable' );
+isa_ok($pluggable, 'Object::Pluggable' );
 $pluggable->plugin_add( 'TestPlugin', TestPlugin->new() );
 $pluggable->run();
 $pluggable->shutdown();

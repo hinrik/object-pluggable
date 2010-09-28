@@ -6,9 +6,9 @@
 
     use strict;
     use warnings;
-    use base qw(POE::Component::Pluggable);
+    use base qw(Object::Pluggable);
     use POE;
-    use POE::Component::Pluggable::Constants qw(:ALL);
+    use Object::Pluggable::Constants qw(:ALL);
 
     sub spawn {
         my ($package, %opts) = @_;
@@ -113,7 +113,7 @@
     package SimplePoCo::Plugin;
     use strict;
     use warnings;
-    use POE::Component::Pluggable::Constants qw(:ALL);
+    use Object::Pluggable::Constants qw(:ALL);
 
     sub new {
         my $package = shift;

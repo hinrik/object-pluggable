@@ -1,4 +1,4 @@
-package POE::Component::Pluggable::Constants;
+package Object::Pluggable::Constants;
 
 use strict;
 use warnings;
@@ -25,16 +25,15 @@ __END__
 
 =head1 NAME
 
-POE::Component::Pluggable::Constants - importable constants for
-POE::Component::Pluggable
+Object::Pluggable::Constants - Importable constants for Object::Pluggable
 
 =head1 SYNOPSIS
 
- use POE::Component::Pluggable::Constants qw(:ALL);
+ use Object::Pluggable::Constants qw(:ALL);
 
 =head1 DESCRIPTION
 
-POE::Component::Pluggable::Constants defines a number of constants that are
+Object::Pluggable::Constants defines a number of constants that are
 required by the plugin system.
 
 =head1 EXPORTS
@@ -73,6 +72,6 @@ Chris 'BinGOs' Williams <chris@bingosnet.co.uk>
 
 =head1 SEE ALSO
 
-L<POE::Component::Pluggable|POE::Component::Pluggable>
+L<Object::Pluggable|Object::Pluggable>
 
 =cut

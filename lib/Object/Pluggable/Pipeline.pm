@@ -1,4 +1,4 @@
-package POE::Component::Pluggable::Pipeline;
+package Object::Pluggable::Pipeline;
 
 use strict;
 use warnings;
@@ -371,16 +371,15 @@ __END__
 
 =head1 NAME
 
-POE::Component::Pluggable::Pipeline - the plugin pipeline for
-POE::Component::Pluggable.
+Object::Pluggable::Pipeline - The plugin pipeline for Object::Pluggable.
 
 =head1 SYNOPSIS
 
-  use POE qw( Component::Pluggable );
-  use POE::Component::Pluggable::Pipeline;
+  use Object::Pluggable;
+  use Object::Pluggable::Pipeline;
   use My::Plugin;
 
-  my $self = POE::Component::Pluggable->new();
+  my $self = Object::Pluggable->new();
 
   # the following operations are presented in pairs
   # the first is the general procedure, the second is
@@ -433,14 +432,14 @@ POE::Component::Pluggable.
 
 =head1 DESCRIPTION
 
-POE::Component::Pluggable::Pipeline defines the Plugin pipeline system
-for L<POE::Component::Pluggable|POE::Component::Pluggable> instances.  
+Object::Pluggable::Pipeline defines the Plugin pipeline system for
+L<Object::Pluggable|Object::Pluggable> instances.
 
 =head1 METHODS
 
 =head2 C<new>
 
-Takes one argument, the POE::Component::Pluggable object to attach to.
+Takes one argument, the Object::Pluggable object to attach to.
 
 =head2 C<push>
 
@@ -607,8 +606,8 @@ Chris C<BinGOs> Williams, F<chris@bingosnet.co.uk>.
 
 =head1 SEE ALSO
 
-L<POE::Component::IRC|POE::Component::IRC>, 
+L<Object::Pluggable|Object::Pluggable>.
 
-L<POE::Component::Pluggable|POE::Component::Pluggable>.
+L<POE::Component::IRC|POE::Component::IRC>, 
 
 =cut
