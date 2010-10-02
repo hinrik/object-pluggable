@@ -1,7 +1,9 @@
 Object::Pluggable
 =========================
 
-1.28
+{{$NEXT}}
+
+1.27  Tue Sep 28 19:31:45 2010 +0000
     - Allow arguments to be passed to plugins' register/unregister methods
     - Localize $@ before we eval
     - Let subclasses and plugins add new event arguments in their handlers
