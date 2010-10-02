@@ -2,6 +2,7 @@ Object::Pluggable
 =========================
 
 {{$NEXT}}
+    - Require Pod::Parser 1.36 to avoid test failures due to =encoding utf8
 
 1.27  Tue Sep 28 19:31:45 2010 +0000
     - Allow arguments to be passed to plugins' register/unregister methods
