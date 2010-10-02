@@ -2,6 +2,8 @@ Object::Pluggable
 =========================
 
 {{$NEXT}}
+
+1.28  Sat Oct 2 12:06:47 GMT 2010
     - Require Pod::Parser 1.36 to avoid test failures due to =encoding utf8
 
 1.27  Tue Sep 28 19:31:45 2010 +0000
