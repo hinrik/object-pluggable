@@ -2,6 +2,8 @@ Object::Pluggable
 =========================
 
 {{$NEXT}}
+
+1.29  Sat Oct 9 02:52:22 GMT 2010
     - I didn't actually set the version (1.36) for Pod::Parser. Fixed.
 
 1.28  Sat Oct 2 12:06:47 GMT 2010
