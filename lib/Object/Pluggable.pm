@@ -573,7 +573,7 @@ C<undef>/an empty list if not.
 
 =head2 C<plugin_del>
 
-Accepts one argument:
+Accepts the following arguments:
 
  The alias for the plugin or the plugin object itself
  Any number of extra arguments
@@ -586,7 +586,7 @@ if not.
 
 =head2 C<plugin_get>
 
-Accepts one argument:
+Accepts the following arguments:
 
  The alias for the plugin
 
